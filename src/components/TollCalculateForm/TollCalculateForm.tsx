@@ -10,6 +10,9 @@ import RouteMap from "../routeMap/RouteMap";
 import { LatLngExpression } from "leaflet";
 import SelectDropdown from "../selectDropdown/SelectDropdown";
 import { getPlaces } from "@/apicalls/places";
+import TollDetails from "../tolldetails/TollDetails";
+import Image from "next/image";
+import IconInfo from "../iconsInfo/IconInfo";
 
 type Props = {};
 
@@ -273,23 +276,6 @@ export default function TollCalculateForm({}: Props) {
               onChange={handlechangeLocationValue}
               handleClear={() => handleClear("endLocation")}
             />
-            {/* <Input
-              required={true}
-              name="startLocation"
-              value={locations.startLocation}
-              className="w-full"
-              placeholder="Start Location"
-              onChange={handleChangeLocaiion}
-            /> */}
-
-            {/* <Input
-              required={true}
-              name="endLocation"
-              value={locations.endLocation}
-              onChange={handleChangeLocaiion}
-              className="w-full"
-              placeholder="Destination"
-            /> */}
             <DropDown
               value={vehicle}
               onChange={(option) => setVehicle(option)}
@@ -298,9 +284,26 @@ export default function TollCalculateForm({}: Props) {
             <Button
               label={loading ? "Loading..." : "Submit"}
               type="submit"
-              className="w-full border border-gray-700 px-2 py-1 rounded-sm"
+              className="w-full hover:text-white hover:bg-slate-700 border border-gray-700 px-2 py-1 rounded-sm"
             />
+            {routes?.[0]?.summary?.url && (
+              <a
+                className="w-full hover:text-white hover:bg-slate-700 border border-gray-700 px-2 py-1 rounded-sm"
+                href={routes?.[0]?.summary?.url}
+                target="_black"
+              >
+                Get directions
+              </a>
+            )}
           </form>
+          {routes && routes?.length > 0 && (
+            <TollDetails
+              petrolPrice={routes?.[0]?.costs?.fuel}
+              tollCost={routes?.[0]?.costs?.minimumTollCost}
+              distance={routes?.[0]?.summary?.distance?.metric}
+              duration={routes?.[0]?.summary?.duration?.text}
+            />
+          )}
         </div>
         <div className="flex-1 w-full">
           <RouteMap
@@ -310,6 +313,7 @@ export default function TollCalculateForm({}: Props) {
             routes={routes}
             wayPoints={wayPoints}
           />
+          <IconInfo />
         </div>
       </div>
     </div>

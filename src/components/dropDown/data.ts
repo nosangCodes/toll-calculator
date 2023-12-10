@@ -19,16 +19,6 @@ export const groupedOptions: GroupedOption[] = [
         label: "Car, Jeep, Van, SUV",
         parent_id: "Car, Jeep, Van, SUV",
       },
-      {
-        value: "3AxlesAuto",
-        label: "Car, SUV towing 1-axle trailer",
-        parent_id: "Car, Jeep, Van, SUV",
-      },
-      {
-        value: "4AxlesAuto",
-        label: "Car, SUV towing 2-axle trailer",
-        parent_id: "Car, Jeep, Van, SUV",
-      },
     ],
   },
   {

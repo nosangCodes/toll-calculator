@@ -7,7 +7,7 @@ export const POST = async (req: Request) => {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "x-api-key": "tm4DbMMhtQJ7PqDBPfmrmJ44BgrGTJ22",
+          "x-api-key": "Brt8FNGTQn8fBq7RRfLTLHggHD3tJ2M4",
         },
         body: JSON.stringify(body),
       }

@@ -17,13 +17,24 @@ type Route = {
   summary: {
     hasTolls: boolean;
     hasExpressTolls: boolean;
+    url: string;
     diffs: {
       cheapest: number;
       fastest: number;
     };
     url: string;
+    distance: {
+      metric: string;
+    };
+    duration: {
+      text: string;
+    };
   };
   polyline: string;
+  costs: {
+    minimumTollCost: number;
+    fuel: number;
+  };
 };
 
 type Marker = {

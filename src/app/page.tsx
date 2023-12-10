@@ -7,7 +7,7 @@ export default function Home() {
 
   return (
     <main>
-      <h1 className="text-2xl font-semibold">Tool Calculator</h1>
+      <h1 className="text-2xl font-semibold">Toll Calculator</h1>
       <TollCalculateForm />
     </main>
   );

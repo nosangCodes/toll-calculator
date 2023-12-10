@@ -57,29 +57,61 @@ export default function RouteMap({
   useEffect(() => {
     if (selectedRoute?.polyline) {
       // get decoded polyline
-      decodePolyline(selectedRoute.polyline)
-        .then((res) => {
-          setdecodedPolyline(res.decoededPolyline);
-        })
-        .catch((err) => {
-          console.error("Something went wrong", err);
-        });
+      // decodePolyline(selectedRoute.polyline)
+      //   .then((res) => {
+      //     setdecodedPolyline(res.decoededPolyline);
+      //   })
+      //   .catch((err) => {
+      //     console.error("Something went wrong", err);
+      //   });
 
-      // get tolls
-      getTollsByPolyline({
-        source: "here",
-        polyline: selectedRoute.polyline,
-      })
-        .then((res) => {
-          if (res?.data?.route?.hasTolls) {
-            let formattedTolls = [];
+      // // get tolls
+      // getTollsByPolyline({
+      //   source: "here",
+      //   polyline: selectedRoute.polyline,
+      // })
+      //   .then((res) => {
+      //     if (res?.data?.route?.hasTolls) {
+      //       let formattedTolls = [];
 
-            formattedTolls = res.data.route.tolls.map((item: Toll) => {
-              if (item.type === "barrier") {
-                return item;
-              } else return { ...item.start, ...item };
-            });
-            setTolls(formattedTolls);
+      //       formattedTolls = res.data.route.tolls.map((item: Toll) => {
+      //         if (item.type === "barrier") {
+      //           return item;
+      //         } else return { ...item.start, ...item };
+      //       });
+      //       setTolls(formattedTolls);
+      //     }
+      //   })
+      //   .catch((err) => {
+      //     console.error("Something went wrong", err);
+      //   });
+
+      Promise.all([
+        decodePolyline(selectedRoute.polyline),
+        getTollsByPolyline({
+          source: "here",
+          polyline: selectedRoute.polyline,
+        }),
+      ])
+        .then((res) => {
+          console.log("res", res);
+          if (res?.length > 1) {
+            // get decoded polyline
+            setdecodedPolyline(res[0]?.decoededPolyline);
+
+            // get tolls
+            const tollsData = res[1];
+            console.log({ tollsData });
+            if (tollsData.data?.route?.hasTolls) {
+              let formattedTolls = [];
+
+              formattedTolls = tollsData.data.route.tolls.map((item: Toll) => {
+                if (item.type === "barrier") {
+                  return item;
+                } else return { ...item.start, ...item };
+              });
+              setTolls(formattedTolls);
+            }
           }
         })
         .catch((err) => {
@@ -164,6 +196,10 @@ export default function RouteMap({
               <Popup>
                 <h3 className="text-xl font-semibold">{item.name}</h3>
                 <p>Exit: {item.road}</p>
+                <p>Tag cost: {item.tagCost}</p>
+                <p>Tah cost return: {item.tagCostReturn}</p>
+                <p>Tah cost monthly: {item.tagCostMonthly}</p>
+                <p>Cash cost: {item.cashCost}</p>
               </Popup>
             </Marker>
           ))}
