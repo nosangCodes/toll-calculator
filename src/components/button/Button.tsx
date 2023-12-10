@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 type Props = {
@@ -5,7 +6,7 @@ type Props = {
   onClick?: () => void;
   type?: "submit" | "reset" | "button" | undefined;
   className?: string;
-  disabled?: boolean
+  disabled?: boolean;
 };
 
 export default function Button({
@@ -13,13 +14,16 @@ export default function Button({
   onClick,
   type = "button",
   className,
-  disabled
+  disabled,
 }: Props) {
   return (
-    <div>
-      <button disabled={disabled} className={`${className} disabled:cursor-progress`} type={type} onClick={onClick}>
-        {label}
-      </button>
-    </div>
+    <button
+      disabled={disabled}
+      className={`${className} disabled:cursor-progress`}
+      type={type}
+      onClick={onClick}
+    >
+      {label}
+    </button>
   );
 }

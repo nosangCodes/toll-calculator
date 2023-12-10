@@ -4,11 +4,14 @@ export const getTollsBetweenOriginAndDestination = async (
   data: TollFormData
 ) => {
   try {
-    const res = await fetch(`http://localhost:3000/api/tollGuru`, {
-      method: "POST",
-      cache: "no-store",
-      body: JSON.stringify(data),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_FRONTEND_URL}api/tollGuru`,
+      {
+        method: "POST",
+        cache: "no-store",
+        body: JSON.stringify(data),
+      }
+    );
     if (!res.ok) {
       toast.error("Something went wrong! Please try again!");
       throw new Error("Failed");
@@ -25,11 +28,14 @@ export const getTollsByPolyline = async (data: {
   polyline: string;
 }) => {
   try {
-    const res = await fetch(`http://localhost:3000/api/tollGuru/tolls`, {
-      method: "POST",
-      cache: "no-store",
-      body: JSON.stringify(data),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_FRONTEND_URL}api/tollGuru/tolls`,
+      {
+        method: "POST",
+        cache: "no-store",
+        body: JSON.stringify(data),
+      }
+    );
     if (!res.ok) {
       toast.error("Something went wrong! Please try again!");
       throw new Error("Failed");

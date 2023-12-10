@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Select, { components, GroupProps, SingleValue } from "react-select";
 import { OptionInterface, GroupedOption, groupedOptions } from "./data";

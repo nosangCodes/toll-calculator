@@ -28,13 +28,13 @@ const icons = [
 
 export default function IconInfo({}: Props) {
   return (
-    <div className="flex flex-row justify-between mt-3">
+    <main className="flex flex-row justify-between mt-3">
       {icons.map((item, index) => (
         <div key={index} className="flex flex-col gap-2 items-center">
           <Image height={20} width={20} alt={item.alt} src={item.src} />
           <p>{item.label}</p>
         </div>
       ))}
-    </div>
+    </main>
   );
 }

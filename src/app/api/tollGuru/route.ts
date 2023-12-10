@@ -3,7 +3,7 @@ export const POST = async (req: Request) => {
     const body = await req.json();
     const myHeaders = new Headers();
     myHeaders.append("content-type", "application/json");
-    myHeaders.append("x-api-key", "tm4DbMMhtQJ7PqDBPfmrmJ44BgrGTJ22");
+    myHeaders.append("x-api-key", process.env.TOLL_GURU_API_KEY as string);
     const res = await fetch(
       `https://apis.tollguru.com/toll/v2/origin-destination-waypoints`,
       {

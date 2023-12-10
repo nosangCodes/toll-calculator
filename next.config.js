@@ -1,7 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["img.icons8.com"],
+    remotePatterns: [
+      {
+        hostname: "img.icons8.com",
+      },
+    ],
   },
 };
 

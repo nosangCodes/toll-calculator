@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import url("~leaflet/dist/leaflet.css");
 
 body {
   padding: 1rem;

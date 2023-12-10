@@ -7,7 +7,7 @@ export const POST = async (req: Request) => {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "x-api-key": "Brt8FNGTQn8fBq7RRfLTLHggHD3tJ2M4",
+          "x-api-key": process.env.TOLL_GURU_API_KEY as string,
         },
         body: JSON.stringify(body),
       }

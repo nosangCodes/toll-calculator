@@ -1,20 +1,21 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Input from "../Input/Input";
 import Button from "../button/Button";
 import { getTollsBetweenOriginAndDestination } from "@/apicalls/tollGuru";
 import DropDown from "../dropDown/DropDown";
 import { GroupedOption, OptionInterface } from "../dropDown/data";
 import { SingleValue } from "react-select";
-import RouteMap from "../routeMap/RouteMap";
-import { LatLngExpression } from "leaflet";
+// import RouteMap from "../routeMap/RouteMap";
 import SelectDropdown from "../selectDropdown/SelectDropdown";
 import { getPlaces } from "@/apicalls/places";
 import TollDetails from "../tolldetails/TollDetails";
-import Image from "next/image";
 import IconInfo from "../iconsInfo/IconInfo";
-
+import dynamic from "next/dynamic";
 type Props = {};
+
+const DynamiMap = dynamic(() => import("../routeMap/RouteMap"), {
+  ssr: false,
+});
 
 export default function TollCalculateForm({}: Props) {
   const [loading, setLoading] = useState(false);
@@ -215,108 +216,98 @@ export default function TollCalculateForm({}: Props) {
     }
   }, [locations]);
 
-  useEffect(() => {
-    console.log("start Location", startLocation);
-    console.log("End Location", endLocation);
-    console.log("wayoints", wayPoints);
-  }, [startLocation, endLocation, wayPoints]);
-
   return (
-    <div>
-      <div className="flex flex-col md:flex-row">
-        <div className="mx-auto md:mx-4 my-6 w-full md:w-1/3">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-            <SelectDropdown
-              required
-              name="startLocation"
-              value={startLocation}
-              placeholder="Start Location"
-              handleChangeInput={handleChangeLocaiion}
-              options={locationResults}
-              isLoading={loadingSearchResults}
-              onChange={handlechangeLocationValue}
-              handleClear={() => handleClear("startLocation")}
-            />
-
-            {wayPoints.map((item, index: number) => (
-              <div key={index} className="flex flex-row gap-2 items-center">
-                <SelectDropdown
-                  name={`waypoint-${index}`}
-                  value={item?.value ? item : undefined}
-                  placeholder="Way Point(Optional)"
-                  // inputValue={locations.startLocation}
-                  handleChangeInput={handleChangeLocaiion}
-                  options={locationResults}
-                  isLoading={loadingSearchResults}
-                  onChange={(name, value) =>
-                    handlechangeLocationValue(name, value, index)
-                  }
-                  handleClear={() => handleClear("waypoint", index)}
-                />
-                {index === 0 && (
-                  <Button label="Add" onClick={hadnleAddWayPoint} />
-                )}
-                {index !== 0 && (
-                  <Button
-                    label="Remove"
-                    onClick={() => handleRemoveWaypoint(index)}
-                  />
-                )}
-              </div>
-            ))}
-            <SelectDropdown
-              required
-              name="endLocation"
-              value={endLocation}
-              placeholder="Destination"
-              // inputValue={locations.startLocation}
-              handleChangeInput={handleChangeLocaiion}
-              options={locationResults}
-              isLoading={loadingSearchResults}
-              onChange={handlechangeLocationValue}
-              handleClear={() => handleClear("endLocation")}
-            />
-            <DropDown
-              value={vehicle}
-              onChange={(option) => setVehicle(option)}
-              required
-            />
-            <Button
-              disabled={loading}
-              label={loading ? "Loading..." : "Submit"}
-              type="submit"
-              className="w-full hover:text-white hover:bg-slate-700 border border-gray-700 px-2 py-1 rounded-sm"
-            />
-            {routes?.[0]?.summary?.url && (
-              <a
-                className="w-full hover:text-white hover:bg-slate-700 border border-gray-700 px-2 py-1 rounded-sm"
-                href={routes?.[0]?.summary?.url}
-                target="_black"
-              >
-                Get directions
-              </a>
-            )}
-          </form>
-          {routes && routes?.length > 0 && (
-            <TollDetails
-              petrolPrice={routes?.[0]?.costs?.fuel}
-              tollCost={routes?.[0]?.costs?.minimumTollCost}
-              distance={routes?.[0]?.summary?.distance?.metric}
-              duration={routes?.[0]?.summary?.duration?.text}
-            />
-          )}
-        </div>
-        <div className="flex-1 w-full">
-          <RouteMap
-            startLocation={startLocation}
-            endLocation={endLocation}
-            markers={markers}
-            routes={routes}
-            wayPoints={wayPoints}
+    <section className="flex flex-col md:flex-row">
+      <div className="mx-auto md:mx-4 my-6 w-full md:w-1/3">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          <SelectDropdown
+            required={true}
+            name="startLocation"
+            value={startLocation}
+            placeholder="Start Location"
+            handleChangeInput={handleChangeLocaiion}
+            options={locationResults}
+            isLoading={loadingSearchResults}
+            onChange={handlechangeLocationValue}
+            handleClear={() => handleClear("startLocation")}
           />
-          <IconInfo />
-        </div>
+
+          {wayPoints.map((item, index: number) => (
+            <div key={index} className="flex flex-row gap-2 items-center">
+              <SelectDropdown
+                name={`waypoint-${index}`}
+                value={item?.value ? item : undefined}
+                placeholder="Way Point(Optional)"
+                handleChangeInput={handleChangeLocaiion}
+                options={locationResults}
+                isLoading={loadingSearchResults}
+                onChange={(name, value) =>
+                  handlechangeLocationValue(name, value, index)
+                }
+                handleClear={() => handleClear("waypoint", index)}
+              />
+              {index === 0 && (
+                <Button label="Add" onClick={hadnleAddWayPoint} />
+              )}
+              {index !== 0 && (
+                <Button
+                  label="Remove"
+                  onClick={() => handleRemoveWaypoint(index)}
+                />
+              )}
+            </div>
+          ))}
+          <SelectDropdown
+            required={true}
+            name="endLocation"
+            value={endLocation}
+            placeholder="Destination"
+            handleChangeInput={handleChangeLocaiion}
+            options={locationResults}
+            isLoading={loadingSearchResults}
+            onChange={handlechangeLocationValue}
+            handleClear={() => handleClear("endLocation")}
+          />
+          <DropDown
+            value={vehicle}
+            onChange={(option) => setVehicle(option)}
+            required={true}
+          />
+          <Button
+            disabled={loading}
+            label={loading ? "Loading..." : "Submit"}
+            type="submit"
+            className="w-full hover:text-white hover:bg-slate-700 border border-gray-700 px-2 py-1 rounded-sm"
+          />
+        </form>
+        {routes?.[0]?.summary?.url && (
+          <a
+            className="w-full mt-3 block hover:text-white hover:bg-slate-700 border border-gray-700 px-2 py-1 rounded-sm"
+            href={routes?.[0]?.summary?.url}
+            target="_black"
+          >
+            Get directions
+          </a>
+        )}
+        {routes && routes?.length > 0 && (
+          <TollDetails
+            petrolPrice={routes?.[0]?.costs?.fuel}
+            tollCost={routes?.[0]?.costs?.minimumTollCost}
+            distance={routes?.[0]?.summary?.distance?.metric}
+            duration={routes?.[0]?.summary?.duration?.text}
+          />
+        )}
       </div>
-    </div>
+      <div className="flex-1 w-full">
+        <DynamiMap
+          startLocation={startLocation}
+          endLocation={endLocation}
+          markers={markers}
+          routes={routes}
+          wayPoints={wayPoints}
+        />
+        <IconInfo />
+      </div>
+    </section>
   );
 }
