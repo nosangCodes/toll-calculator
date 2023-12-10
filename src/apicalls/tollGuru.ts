@@ -5,7 +5,7 @@ export const getTollsBetweenOriginAndDestination = async (
 ) => {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_FRONTEND_URL}api/tollGuru`,
+      `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/tollGuru`,
       {
         method: "POST",
         cache: "no-store",
@@ -29,7 +29,7 @@ export const getTollsByPolyline = async (data: {
 }) => {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_FRONTEND_URL}api/tollGuru/tolls`,
+      `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/tollGuru/tolls`,
       {
         method: "POST",
         cache: "no-store",

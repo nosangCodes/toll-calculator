@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 export const decodePolyline = async (polyline: string) => {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_FRONTEND_URL}api/polyline`,
+      `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/polyline`,
       {
         method: "POST",
         body: JSON.stringify({
