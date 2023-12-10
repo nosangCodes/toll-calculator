@@ -1,5 +1,23 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+![Screenshot from 2023-12-10 20-15-01](https://github.com/nosangdev/toll-calculator/assets/141858330/c4c263bb-0a9c-4da3-acea-cd450ae85f7d)
 
+This documentation provides a guide on how to use our toll tax calculator feature to plan your journeys and estimate toll costs.
+
+## How to use?
+
+1. Enter Start Location
+2. Enter Waypoints (optional)
+3. Enter Destination
+4. Select Vehicle
+5. Submit
+
+## External APi used
+
+1. [Toll guru](https://tollguru.com/toll-api)
+       to obtain toll information for various routes. This API allows us to provide you with up-to-date toll estimates based on your selected journey details.
+2. [tomtom](https://developer.tomtom.com/products/places-api)
+       to get a list of locations based on the search query.
+
+   
 ## Getting Started
 
 First, run the development server:
