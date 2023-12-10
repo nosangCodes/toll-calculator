@@ -20,8 +20,8 @@ const startIcon = new Icon({
 });
 const tollIcon = new Icon({
   iconUrl: "https://img.icons8.com/ios-filled/50/F60000/rupee.png",
-  iconSize: [28, 28], // size of the icon
-  iconAnchor: [17, 46], // point of the icon which will correspond to marker's location
+  iconSize: [12, 12], // size of the icon
+  iconAnchor: [10, 17], // point of the icon which will correspond to marker's location
   popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
 });
 

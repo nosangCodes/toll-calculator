@@ -4,6 +4,7 @@ import { OptionInterface, GroupedOption, groupedOptions } from "./data";
 type Props = {
   onChange: (option: SingleValue<GroupedOption>) => void;
   value: SingleValue<GroupedOption> | undefined;
+  required?: boolean;
 };
 
 const groupStyles = {
@@ -42,13 +43,14 @@ const Group = (props: GroupProps<GroupedOption, false>) => (
   </div>
 );
 
-export default function DropDown({ onChange, value }: Props) {
+export default function DropDown({ onChange, value, required = false }: Props) {
   let options = groupedOptions.map((group: GroupedOption) =>
     createGroup(group.label, group.options)
   );
   return (
     <div>
       <Select
+        required={required}
         value={value}
         options={groupedOptions}
         components={{

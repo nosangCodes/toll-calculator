@@ -8,15 +8,21 @@ import { GroupedOption, OptionInterface } from "../dropDown/data";
 import { SingleValue } from "react-select";
 import RouteMap from "../routeMap/RouteMap";
 import { LatLngExpression } from "leaflet";
+import SelectDropdown from "../selectDropdown/SelectDropdown";
+import { getPlaces } from "@/apicalls/places";
 
 type Props = {};
 
 export default function TollCalculateForm({}: Props) {
   const [loading, setLoading] = useState(false);
   const [routes, setRoutes] = useState<Route[]>([]);
+  const [startLocation, setStartLocation] = useState<SelectOption>();
+  const [endLocation, setEndLocation] = useState<SelectOption>();
+  const [locationResults, setLocationResults] = useState<SelectOption[]>([]);
+  const [loadingSearchResults, setLoadingSearchResults] = useState(false);
   const [locations, setLocations] = useState({
-    startLocation: "Kalimpong, West bengal",
-    endLocation: "Bangalore",
+    startLocation: "",
+    endLocation: "",
   });
 
   const [markers, setMarkers] = useState<Markers>({
@@ -36,146 +42,258 @@ export default function TollCalculateForm({}: Props) {
       address: "",
     },
   });
-  const [wayPoints, setWayPoints] = useState<{ address: string }[]>([
+  const [wayPoints, setWayPoints] = useState<SelectOption[]>([
     {
-      address: "Kolkata",
+      label: "",
+      value: undefined,
     },
   ]);
 
   const [vehicle, setVehicle] = useState<SingleValue<GroupedOption>>();
 
-  const handleChangeLocaiion = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const handlechangeLocationValue = (
+    name: string,
+    value: SelectOption,
+    index?: number
+  ) => {
+    if (name === "startLocation") {
+      setStartLocation(value);
+    } else if (name === "endLocation") {
+      setEndLocation(value);
+    } else {
+      if (typeof index === "number") {
+        setWayPoints((prev) => {
+          let duplicate = [...prev];
+          duplicate[index] = value;
+          return duplicate;
+        });
+      }
+    }
+  };
+
+  const handleChangeLocaiion = (name: string, value: string) => {
+    // const { name, value } = e.target;
     setLocations((prev) => ({
       ...prev,
-      [name]: value,
+      startLocation: value,
     }));
   };
 
-  const handleChangeWaypointValue = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    setWayPoints((prev) => {
-      let duplicate = [...prev];
-      duplicate[index]["address"] = e.target.value;
-      return duplicate;
-    });
+  const handleClear = (name: string, index?: number) => {
+    if (name === "startLocation") {
+      setStartLocation(undefined);
+    } else if (name === "endLocation") {
+      setEndLocation(undefined);
+    } else {
+      if (typeof index === "number") {
+        setWayPoints((prev) => {
+          let duplicate = [...prev];
+          duplicate[index] = { label: "", value: undefined };
+          return duplicate;
+        });
+      }
+    }
   };
 
   const hadnleAddWayPoint = () => {
-    setWayPoints((prev) => [...prev, { address: "" }]);
+    setWayPoints((prev) => [
+      ...prev,
+      {
+        label: "",
+        value: undefined,
+      },
+    ]);
+  };
+
+  const handleRemoveWaypoint = (index: number) => {
+    let duplicate = [...wayPoints];
+    duplicate.splice(index, 1);
+    setWayPoints(duplicate);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let finalData = {
-      from: {
-        address: locations.startLocation,
-      },
-      to: {
-        address: locations.endLocation,
-      },
-      waypoints: wayPoints,
-      vehicle: {
-        type: vehicle?.value,
-      },
-    };
 
-    setLoading(true);
-    await getTollsBetweenOriginAndDestination(finalData)
-      .then((res) => {
-        setRoutes(res?.data?.routes ? res?.data?.routes : []);
-        if (
-          res?.data?.summary?.route &&
-          res?.data?.summary?.route?.length > 0
-        ) {
-          const route = res?.data?.summary?.route;
-          setMarkers((prev) => {
-            let duplicate = { ...prev };
-            duplicate.start.address = route[0].address;
-            duplicate.start.marker = {
-              lat: route[0].location.lat,
-              lng: route[0].location.lng,
-            };
-            duplicate.end.address = route[route.length - 1].address;
-            duplicate.end.marker = {
-              lat: route[route.length - 1].location.lat,
-              lng: route[route.length - 1].location.lng,
-            };
+    if (startLocation?.value && endLocation?.value) {
+      let finalData = {
+        from: {
+          ...startLocation?.value,
+        },
+        to: {
+          ...endLocation?.value,
+        },
+        waypoints: wayPoints?.[0]?.value?.lat
+          ? wayPoints?.map((item) => ({ ...item.value }))
+          : [],
+        vehicle: {
+          type: vehicle?.value,
+        },
+      };
+      setLoading(true);
+      await getTollsBetweenOriginAndDestination(finalData)
+        .then((res) => {
+          setRoutes(res?.data?.routes ? res?.data?.routes : []);
+          if (
+            res?.data?.summary?.route &&
+            res?.data?.summary?.route?.length > 0
+          ) {
+            const route = res?.data?.summary?.route;
+            setMarkers((prev) => {
+              let duplicate = { ...prev };
+              duplicate.start.address = route[0].address;
+              duplicate.start.marker = {
+                lat: route[0].location.lat,
+                lng: route[0].location.lng,
+              };
+              duplicate.end.address = route[route.length - 1].address;
+              duplicate.end.marker = {
+                lat: route[route.length - 1].location.lat,
+                lng: route[route.length - 1].location.lng,
+              };
 
-            let viaRoutes = [];
-            console.log("route", route);
-            if (route.length > 2) {
-              console.log("route.length", route.length);
+              let viaRoutes = [];
+              if (route.length > 2) {
+                for (let i = 1; i < route.length - 1; i++) {
+                  let obj = {
+                    address: route[i].address,
+                    marker: {
+                      lat: route[i].location.lat,
+                      lng: route[i].location.lng,
+                    },
+                  };
+                  viaRoutes.push(obj);
+                }
+              }
 
-              for (let i = 1; i < route.length - 1; i++) {
-                console.log("via index", i);
-                console.log("via ", route[i]);
+              duplicate["via"] = viaRoutes;
+              return duplicate;
+            });
+          }
+        })
+        .catch((error) => {
+          console.error("error", error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  };
 
+  // search location
+
+  useEffect(() => {
+    if (locations.startLocation || locations.endLocation) {
+      const timer = setTimeout(() => {
+        setLoadingSearchResults(true);
+        getPlaces(locations.startLocation)
+          .then((res) => {
+            let formatted: SelectOption[] = [];
+            if (res.data.results?.length > 0) {
+              res.data.results?.map((item: PlacesResult) => {
                 let obj = {
-                  address: route[i].address,
-                  marker: {
-                    lat: route[i].location.lat,
-                    lng: route[i].location.lng,
+                  label: item.address.freeformAddress,
+                  value: {
+                    lat: item.position.lat,
+                    lng: item.position.lon,
                   },
                 };
-                viaRoutes.push(obj);
-              }
+                formatted.push(obj);
+              });
             }
+            setLocationResults(formatted);
+          })
+          .catch((err) => console.log("something went wrong!"))
+          .finally(() => setLoadingSearchResults(false));
+      }, 1500);
+      return () => {
+        console.log("clearing...");
+        clearInterval(timer);
+      };
+    }
+  }, [locations]);
 
-            duplicate["via"] = viaRoutes;
-            return duplicate;
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("error", error);
-      })
-      .finally(() => {
-        console.log("settled");
-        setLoading(false);
-      });
-  };
+  useEffect(() => {
+    console.log("start Location", startLocation);
+    console.log("End Location", endLocation);
+    console.log("wayoints", wayPoints);
+  }, [startLocation, endLocation, wayPoints]);
 
   return (
     <div>
       <div className="flex flex-col md:flex-row">
-        <div className="flex-3 mx-4 my-6">
+        <div className="mx-auto md:mx-4 my-6 w-full md:w-1/3">
           <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-            <Input
+            <SelectDropdown
+              required
+              name="startLocation"
+              value={startLocation}
+              placeholder="Start Location"
+              handleChangeInput={handleChangeLocaiion}
+              options={locationResults}
+              isLoading={loadingSearchResults}
+              onChange={handlechangeLocationValue}
+              handleClear={() => handleClear("startLocation")}
+            />
+
+            {wayPoints.map((item, index: number) => (
+              <div key={index} className="flex flex-row gap-2 items-center">
+                <SelectDropdown
+                  name={`waypoint-${index}`}
+                  value={item?.value ? item : undefined}
+                  placeholder="Way Point(Optional)"
+                  // inputValue={locations.startLocation}
+                  handleChangeInput={handleChangeLocaiion}
+                  options={locationResults}
+                  isLoading={loadingSearchResults}
+                  onChange={(name, value) =>
+                    handlechangeLocationValue(name, value, index)
+                  }
+                  handleClear={() => handleClear("waypoint", index)}
+                />
+                {index === 0 && (
+                  <Button label="Add" onClick={hadnleAddWayPoint} />
+                )}
+                {index !== 0 && (
+                  <Button
+                    label="Remove"
+                    onClick={() => handleRemoveWaypoint(index)}
+                  />
+                )}
+              </div>
+            ))}
+            <SelectDropdown
+              required
+              name="endLocation"
+              value={endLocation}
+              placeholder="Destination"
+              // inputValue={locations.startLocation}
+              handleChangeInput={handleChangeLocaiion}
+              options={locationResults}
+              isLoading={loadingSearchResults}
+              onChange={handlechangeLocationValue}
+              handleClear={() => handleClear("endLocation")}
+            />
+            {/* <Input
               required={true}
               name="startLocation"
               value={locations.startLocation}
               className="w-full"
               placeholder="Start Location"
               onChange={handleChangeLocaiion}
-            />
-            {wayPoints.map((item, index: number) => (
-              <div key={index} className="flex flex-row gap-2">
-                <Input
-                  value={wayPoints[index]["address"]}
-                  onChange={(e) => handleChangeWaypointValue(e, index)}
-                  className="w-full"
-                  placeholder="Way Point(Optional)"
-                  name={`waypoint-${index}`}
-                />
-                {index === 0 && (
-                  <Button label="Add" onClick={hadnleAddWayPoint} />
-                )}
-              </div>
-            ))}
-            <Input
+            /> */}
+
+            {/* <Input
               required={true}
               name="endLocation"
               value={locations.endLocation}
               onChange={handleChangeLocaiion}
               className="w-full"
               placeholder="Destination"
-            />
+            /> */}
             <DropDown
               value={vehicle}
               onChange={(option) => setVehicle(option)}
+              required
             />
             <Button
               label={loading ? "Loading..." : "Submit"}
@@ -185,7 +303,13 @@ export default function TollCalculateForm({}: Props) {
           </form>
         </div>
         <div className="flex-1 w-full">
-          <RouteMap markers={markers} routes={routes} />
+          <RouteMap
+            startLocation={startLocation}
+            endLocation={endLocation}
+            markers={markers}
+            routes={routes}
+            wayPoints={wayPoints}
+          />
         </div>
       </div>
     </div>

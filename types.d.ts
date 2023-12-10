@@ -1,11 +1,13 @@
 type TollFormData = {
   from: {
-    address: string;
+    lat: string;
+    lng: string;
   };
   to: {
-    address: string;
+    lat: string;
+    lng: string;
   };
-  waypoints?: { address: string }[];
+  waypoints?: { lat: string; lng: string }[];
   vehicle: {
     type?: string;
   };
@@ -69,3 +71,20 @@ type Toll = {
 };
 // cashCostReturn: ;
 // cashCostMonthly: null;
+
+type SelectOption = {
+  value: string | object | any | undefined;
+  label: string;
+};
+
+type PlacesResult = {
+  id: string;
+  score: number;
+  address: {
+    freeformAddress: string;
+  };
+  position: {
+    lat: number;
+    lon: number;
+  };
+};

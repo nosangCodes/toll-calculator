@@ -15,9 +15,21 @@ import {
 } from "@/utils/leaftletCustomIcons";
 
 const limeOptions = { color: "lime" };
-type Props = { routes: Route[]; markers: Markers };
+type Props = {
+  routes: Route[];
+  markers: Markers;
+  startLocation?: SelectOption;
+  endLocation?: SelectOption;
+  wayPoints?: SelectOption[];
+};
 
-export default function RouteMap({ routes, markers }: Props) {
+export default function RouteMap({
+  routes,
+  markers,
+  startLocation,
+  endLocation,
+  wayPoints,
+}: Props) {
   const [tolls, setTolls] = useState<Toll[]>([]);
   const [decodedPolyline, setdecodedPolyline] = useState<
     LatLngExpression[] | LatLngExpression[][]
@@ -25,7 +37,6 @@ export default function RouteMap({ routes, markers }: Props) {
   const [selectedRoute, setSelectedRoute] = useState<Route | undefined>();
 
   useEffect(() => {
-    console.log("markers", markers);
     return () => {
       setTolls([]);
       setdecodedPolyline([]);
@@ -82,8 +93,11 @@ export default function RouteMap({ routes, markers }: Props) {
     <div className="h-[80vh]">
       <MapContainer
         center={
-          decodedPolyline.length > 0
-            ? (decodedPolyline[0] as LatLngExpression)
+          startLocation?.value?.lat && startLocation?.value?.lng
+            ? ([
+                parseFloat(startLocation?.value.lat),
+                parseFloat(startLocation.value.lng),
+              ] as LatLngExpression)
             : [27.067, 88.47007]
         }
         zoom={13}
@@ -94,47 +108,46 @@ export default function RouteMap({ routes, markers }: Props) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <Polyline pathOptions={limeOptions} positions={decodedPolyline} />
-        <Marker
-          icon={startIcon}
-          position={
-            markers.start?.marker?.lat && markers?.start?.marker?.lng
-              ? [
-                  parseFloat(markers.start.marker.lat),
-                  parseFloat(markers.start.marker.lng),
-                ]
-              : [27.067, 88.47007]
-          }
-        >
-          <Popup>{`Start ${markers?.start?.address}`}</Popup>
-        </Marker>
-        <Marker
-          icon={endIcon}
-          position={
-            markers?.end?.marker?.lat && markers?.end?.marker?.lng
-              ? [
-                  parseFloat(markers.end.marker.lat),
-                  parseFloat(markers.end.marker.lng),
-                ]
-              : [17.067, 88.47007]
-          }
-        >
-          <Popup>{`End ${markers?.end?.address}`}</Popup>
-        </Marker>
+
+        {startLocation?.value?.lat && startLocation?.value?.lng && (
+          <Marker
+            icon={startIcon}
+            position={[
+              parseFloat(startLocation?.value.lat),
+              parseFloat(startLocation.value.lng),
+            ]}
+          >
+            <Popup>{`Start ${startLocation?.label}`}</Popup>
+          </Marker>
+        )}
+
+        {endLocation?.value?.lat && endLocation?.value?.lng && (
+          <Marker
+            icon={endIcon}
+            position={[
+              parseFloat(endLocation?.value?.lat),
+              parseFloat(endLocation?.value?.lng),
+            ]}
+          >
+            <Popup>{`End ${endLocation?.label}`}</Popup>
+          </Marker>
+        )}
 
         {/* via markers */}
-        {markers?.via?.length > 0 &&
-          markers.via.map((item, index) => {
-            if (item.marker.lat && item.marker.lng) {
+        {wayPoints &&
+          wayPoints?.length > 0 &&
+          wayPoints.map((item, index) => {
+            if (item?.value?.lat && item?.value?.lng) {
               return (
                 <Marker
                   icon={viaIcon}
                   key={index}
                   position={[
-                    parseFloat(item.marker.lat),
-                    parseFloat(item.marker.lng),
+                    parseFloat(item?.value?.lat),
+                    parseFloat(item?.value?.lng),
                   ]}
                 >
-                  <Popup>{item?.address}</Popup>
+                  <Popup>{item?.label}</Popup>
                 </Marker>
               );
             }

@@ -11,6 +11,6 @@ export const decodePolyline = async (polyline: string) => {
     }
     return res.json();
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
