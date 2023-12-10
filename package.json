@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@googlemaps/polyline-codec": "^1.0.28",
+    "leaflet": "^1.9.4",
     "next": "14.0.4",
     "react": "^18",
     "react-dom": "^18",
