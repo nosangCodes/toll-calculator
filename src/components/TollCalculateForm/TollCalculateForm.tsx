@@ -282,7 +282,7 @@ export default function TollCalculateForm({}: Props) {
         </form>
         {routes?.[0]?.summary?.url && (
           <a
-            className="w-full mt-3 block hover:text-white hover:bg-slate-700 border border-gray-700 px-2 py-1 rounded-sm"
+            className="w-full text-center mt-3 block hover:text-white hover:bg-slate-700 border border-gray-700 px-2 py-1 rounded-sm"
             href={routes?.[0]?.summary?.url}
             target="_black"
           >
