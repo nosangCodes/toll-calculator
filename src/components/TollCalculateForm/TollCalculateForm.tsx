@@ -6,14 +6,35 @@ import { getTollsBetweenOriginAndDestination } from "@/apicalls/tollGuru";
 import DropDown from "../dropDown/DropDown";
 import { GroupedOption, OptionInterface } from "../dropDown/data";
 import { SingleValue } from "react-select";
+import RouteMap from "../routeMap/RouteMap";
+import { LatLngExpression } from "leaflet";
 
 type Props = {};
 
 export default function TollCalculateForm({}: Props) {
   const [loading, setLoading] = useState(false);
+  const [routes, setRoutes] = useState<Route[]>([]);
   const [locations, setLocations] = useState({
     startLocation: "Kalimpong, West bengal",
     endLocation: "Bangalore",
+  });
+
+  const [markers, setMarkers] = useState<Markers>({
+    start: {
+      marker: {
+        lat: "",
+        lng: "",
+      },
+      address: "",
+    },
+    via: [],
+    end: {
+      marker: {
+        lat: "",
+        lng: "",
+      },
+      address: "",
+    },
   });
   const [wayPoints, setWayPoints] = useState<{ address: string }[]>([
     {
@@ -61,12 +82,52 @@ export default function TollCalculateForm({}: Props) {
       },
     };
 
-    console.log("submitting", finalData);
-
     setLoading(true);
     await getTollsBetweenOriginAndDestination(finalData)
       .then((res) => {
-        console.log("result", res);
+        setRoutes(res?.data?.routes ? res?.data?.routes : []);
+        if (
+          res?.data?.summary?.route &&
+          res?.data?.summary?.route?.length > 0
+        ) {
+          const route = res?.data?.summary?.route;
+          setMarkers((prev) => {
+            let duplicate = { ...prev };
+            duplicate.start.address = route[0].address;
+            duplicate.start.marker = {
+              lat: route[0].location.lat,
+              lng: route[0].location.lng,
+            };
+            duplicate.end.address = route[route.length - 1].address;
+            duplicate.end.marker = {
+              lat: route[route.length - 1].location.lat,
+              lng: route[route.length - 1].location.lng,
+            };
+
+            let viaRoutes = [];
+            console.log("route", route);
+            if (route.length > 2) {
+              console.log("route.length", route.length);
+
+              for (let i = 1; i < route.length - 1; i++) {
+                console.log("via index", i);
+                console.log("via ", route[i]);
+
+                let obj = {
+                  address: route[i].address,
+                  marker: {
+                    lat: route[i].location.lat,
+                    lng: route[i].location.lng,
+                  },
+                };
+                viaRoutes.push(obj);
+              }
+            }
+
+            duplicate["via"] = viaRoutes;
+            return duplicate;
+          });
+        }
       })
       .catch((error) => {
         console.error("error", error);
@@ -77,11 +138,10 @@ export default function TollCalculateForm({}: Props) {
       });
   };
 
-
   return (
     <div>
-      <div className="flex flex-row">
-        <div className="flex-2 mx-4 my-6">
+      <div className="flex flex-col md:flex-row">
+        <div className="flex-3 mx-4 my-6">
           <form onSubmit={handleSubmit} className="flex flex-col gap-2">
             <Input
               required={true}
@@ -124,7 +184,9 @@ export default function TollCalculateForm({}: Props) {
             />
           </form>
         </div>
-        <div className="flex-3"></div>
+        <div className="flex-1 w-full">
+          <RouteMap markers={markers} routes={routes} />
+        </div>
       </div>
     </div>
   );
