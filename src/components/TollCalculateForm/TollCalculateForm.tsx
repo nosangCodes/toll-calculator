@@ -282,6 +282,7 @@ export default function TollCalculateForm({}: Props) {
               required
             />
             <Button
+              disabled={loading}
               label={loading ? "Loading..." : "Submit"}
               type="submit"
               className="w-full hover:text-white hover:bg-slate-700 border border-gray-700 px-2 py-1 rounded-sm"

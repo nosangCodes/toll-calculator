@@ -5,6 +5,7 @@ type Props = {
   onClick?: () => void;
   type?: "submit" | "reset" | "button" | undefined;
   className?: string;
+  disabled?: boolean
 };
 
 export default function Button({
@@ -12,10 +13,11 @@ export default function Button({
   onClick,
   type = "button",
   className,
+  disabled
 }: Props) {
   return (
     <div>
-      <button className={`${className}`} type={type} onClick={onClick}>
+      <button disabled={disabled} className={`${className} disabled:cursor-progress`} type={type} onClick={onClick}>
         {label}
       </button>
     </div>

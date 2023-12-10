@@ -12,6 +12,10 @@ export const POST = async (req: Request) => {
         body: JSON.stringify(body),
       }
     );
+
+    if (!res.ok) {
+      return Response.json({ error: "Internal Server Error" }, { status: 500 });
+    }
     const data = await res.json();
     return Response.json({ data });
   } catch (error) {

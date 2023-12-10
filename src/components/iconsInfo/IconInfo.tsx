@@ -16,7 +16,7 @@ const icons = [
   },
   {
     alt: "end flag",
-    label: "End Flag",
+    label: "Destination Flag",
     src: "https://img.icons8.com/cotton/64/finish-flag.png",
   },
   {

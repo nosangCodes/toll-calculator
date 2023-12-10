@@ -7,6 +7,7 @@ export const GET = async (req: Request) => {
         `);
 
     if (!res.ok) {
+      return Response.json({ error: "Internal Server Error" }, { status: 500 });
       throw new Error("Failed!");
     }
     const data = await res.json();
